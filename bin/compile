@@ -33,7 +33,6 @@ DOTNET_SDK_VERSION=${DOTNET_SDK_VERSION:-3.1.201}
 DOTNET_RUNTIME_VERSION=${DOTNET_RUNTIME_VERSION:-3.1.3}
 BUILD_CONFIGURATION=${BUILD_CONFIGURATION:-Release}
 
-info "Installing dotnet"
 install_dotnet $BUILD_DIR $CACHE_DIR $DOTNET_SDK_VERSION $DOTNET_RUNTIME_VERSION
 
 export PATH="${BUILD_DIR}/.heroku/dotnet:${PATH}"
@@ -48,15 +47,11 @@ if [ -z ${PROJECT_FILE:-} ]; then
 	PROJECT_FILE=$(x=$(dirname $(find ${BUILD_DIR} -maxdepth 5 -iname Startup.cs -o -iname Program.cs -o -iname Program.fs | head -1)); while [[ "$x" =~ $BUILD_DIR ]] ; do find "$x" -maxdepth 1 -name *.fsproj -o -name *.csproj; x=`dirname "$x"`; done)
 fi
 
-topic "Project File"
-info $PROJECT_FILE
-
 if [ -z ${PROJECT_NAME:-} ]; then
 	PROJECT_NAME=$(basename ${PROJECT_FILE%.*})
 fi
 
-topic "Project Name"
-info $PROJECT_NAME
+topic "Project Name: $PROJECT_NAME"
 
 if [ -n "$(cat $PROJECT_FILE | grep 'netcoreapp2.0')" ]; then
 	topic "WARNING"
@@ -65,15 +60,46 @@ if [ -n "$(cat $PROJECT_FILE | grep 'netcoreapp2.0')" ]; then
 fi
 export NUGET_PACKAGES="${CACHE_DIR}/nuget/cache"
 
-info "publish ${PROJECT_FILE} for ${BUILD_CONFIGURATION}"
-dotnet publish $PROJECT_FILE --output ${BUILD_DIR}/heroku_output --configuration ${BUILD_CONFIGURATION} --runtime linux-x64
+RED='\033[0;31m'
+ORANGE='\033[0;33m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+INDIGO='\033[0;35m'
+NC='\033[0m' # No Color
+
+topic "Publishing your project"
+OUTPUT=$(mktemp)
+BUILD_ERROR=0
+dotnet publish $PROJECT_FILE --output ${BUILD_DIR}/heroku_output --configuration ${BUILD_CONFIGURATION} --runtime linux-x64 2>&1 >${OUTPUT} || BUILD_ERROR=$?
+if [ ${BUILD_ERROR} -ne 0 ]; then
+  echo -e "${RED}"
+  cat ${OUTPUT}
+  echo -e "${NC}"
+  false
+else
+  topic "Published"
+fi
 
 if [ -f ${BUILD_DIR}/Procfile ] && grep -q '^web:' ${BUILD_DIR}/Procfile ; then
 	topic "WARNING"
 	echo "Be careful with custom Procfile" | indent
 else
-	echo "Add web process to Procfile" | indent
 	cat << EOT >> ${BUILD_DIR}/Procfile
 web: cd \$HOME/heroku_output && ./${PROJECT_NAME}
 EOT
 fi
+
+# Cleanup everything that isn't the heroku_output folder where our built app lives
+topic "Cleaning up"
+ls ${BUILD_DIR} | grep -v "heroku_output" | xargs rm -rf {} \;
+
+
+echo ""
+echo -e "${RED}"    "███████╗██╗   ██╗███╗   ██╗ ██████╗ ██████╗  █████╗ ███████╗████████╗ ${NC}"
+echo -e "${ORANGE}" "██╔════╝██║   ██║████╗  ██║██╔════╝██╔═══██╗██╔══██╗██╔════╝╚══██╔══╝ ${NC}"
+echo -e "${YELLOW}" "███████╗██║   ██║██╔██╗ ██║██║     ██║   ██║███████║███████╗   ██║    ${NC}"
+echo -e "${GREEN}"  "╚════██║██║   ██║██║╚██╗██║██║     ██║   ██║██╔══██║╚════██║   ██║    ${NC}"
+echo -e "${BLUE}"   "███████║╚██████╔╝██║ ╚████║╚██████╗╚██████╔╝██║  ██║███████║   ██║    ${NC}"
+echo -e "${INDIGO}" "╚══════╝ ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝   ╚═╝    ${NC}"
+echo -e "${NC}"

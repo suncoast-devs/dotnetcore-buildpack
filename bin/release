@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # bin/release <build-dir>
 
+# We will add a heroku postgres database to every
+# buildpack even if one is not needed. Most of the
+# apps we deploy with this will use postgres anyway.
 cat << EOF
-addons: []
+---
+addons:
+  - heroku-postgresql
 EOF
