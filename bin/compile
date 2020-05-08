@@ -90,9 +90,9 @@ web: cd \$HOME/heroku_output && ./${PROJECT_NAME}
 EOT
 fi
 
-# Cleanup everything that isn't the heroku_output folder where our built app lives
+# Cleanup everything that isn't the Procfile or heroku_output folder where our built app lives
 topic "Cleaning up"
-ls ${BUILD_DIR} | grep -v "heroku_output" | xargs rm -rf {} \;
+ls ${BUILD_DIR} | egrep -v "Procfile|heroku_output" | xargs rm -rf {} \;
 
 
 echo ""
