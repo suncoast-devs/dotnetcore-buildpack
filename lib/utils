@@ -28,6 +28,7 @@ function install_nodejs() {
 
     topic "Installing nodejs ${NODEJS_VERSION} from ${NODEJS_URL}"
     topic "Installing nodejs $(curl -sSL ${NODEJS_URL} | wc)"
+    mkdir -p "${NODEJS_CACHE_LOCATION}"
     curl -sSL "${NODEJS_URL}" | tar Jx --strip-components=1 -C "${NODEJS_CACHE_LOCATION}"
   else
     topic "Already installed nodejs"
