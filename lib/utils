@@ -26,8 +26,7 @@ function install_nodejs() {
   local NODEJS_CACHE_LOCATION=${CACHE_DIR}/nodejs
   if [ ! -d "${NODEJS_CACHE_LOCATION}" ]; then
 
-    topic "Installing nodejs ${NODEJS_VERSION} from ${NODEJS_URL}"
-    topic "Installing nodejs $(curl -sSL ${NODEJS_URL} | wc)"
+    topic "Installing nodejs ${NODEJS_VERSION}"
     mkdir -p "${NODEJS_CACHE_LOCATION}"
     curl -sSL "${NODEJS_URL}" | tar Jx --strip-components=1 -C "${NODEJS_CACHE_LOCATION}"
   else
