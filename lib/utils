@@ -27,6 +27,7 @@ function install_nodejs() {
   if [ ! -d "${NODEJS_CACHE_LOCATION}" ]; then
 
     topic "Installing nodejs ${NODEJS_VERSION} from ${NODEJS_URL}"
+    topic "Installing nodejs $(curl -sSL ${NODEJS_URL} | wc)"
     curl -sSL "${NODEJS_URL}" | tar xz --strip-components=1 -C "${NODEJS_CACHE_LOCATION}"
   else
     topic "Already installed nodejs"
