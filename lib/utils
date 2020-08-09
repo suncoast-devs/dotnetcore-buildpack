@@ -21,11 +21,13 @@ function install_nodejs() {
   local BUILD_DIR="$1"
   local CACHE_DIR="$2"
   local NODEJS_VERSION="$3"
+  local NODEJS_URL="https://nodejs.org/dist/v${NODEJS_VERSION}/node-v${NODEJS_VERSION}-linux-x64.tar.xz"
 
   local NODEJS_CACHE_LOCATION=${CACHE_DIR}/nodejs
   if [ ! -d "${NODEJS_CACHE_LOCATION}" ]; then
-    topic "Installing nodejs ${NODEJS_VERSION}"
-    curl -sSL "https://nodejs.org/dist/v${NODEJS_VERSION}/node-v${NODEJS_VERSION}-linux-x64.tar.xz" | tar xz --strip-components=1 -C "${NODEJS_CACHE_LOCATION}"
+
+    topic "Installing nodejs ${NODEJS_VERSION} from ${NODEJS_URL}"
+    curl -sSL "${NODEJS_URL}" | tar xz --strip-components=1 -C "${NODEJS_CACHE_LOCATION}"
   else
     topic "Already installed nodejs"
   fi
