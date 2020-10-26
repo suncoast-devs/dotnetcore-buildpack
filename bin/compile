@@ -73,7 +73,7 @@ NC='\033[0m' # No Color
 topic "Publishing your project"
 OUTPUT=$(mktemp)
 BUILD_ERROR=0
-dotnet publish $PROJECT_FILE --output ${BUILD_DIR}/heroku_output --configuration ${BUILD_CONFIGURATION} --runtime linux-x64 2>&1 >${OUTPUT} || BUILD_ERROR=$?
+dotnet publish $PROJECT_FILE --output ${BUILD_DIR}/heroku_output --configuration ${BUILD_CONFIGURATION} --runtime linux-x64 || BUILD_ERROR=$?
 if [ ${BUILD_ERROR} -ne 0 ]; then
   echo -e "${RED}"
   cat ${OUTPUT}
